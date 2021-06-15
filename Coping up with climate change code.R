@@ -45,19 +45,6 @@ input_estimates_2020_2029
 #### Impact pathway determining farmers success ####
 library(DiagrammeR)
 mermaid("graph BT
-        Y(Yield)-->I(Income); linkStyle 0 stroke:black, stroke-width:3px
-        MP(Market price)-->I; linkStyle 1 stroke: blue, stroke-width:2px
-        I-->FR(Final result); linkStyle 2 stroke: brown, stroke-width:3px
-        CL(Cost labour)-->FR; linkStyle 3 stroke: brown, stroke-width:3px
-        CM(Cost management)-->FR;linkStyle 4 stroke: brown, stroke-width:3px
-        style Y fill:orange
-        style MP fill:orange
-        style I fill:green
-        style CL fill:green
-        style CM fill:green
-        style FR fill:red")
-
-mermaid("graph BT
         PRE(Precipitation)-->ABI(Abiotic Factors);     linkStyle 0 stroke:black, stroke-width:3px
         RAD(Radiation)-->ABI;                          linkStyle 1 stroke:black, stroke-width:3px
         WIN(Wind)-->ABI;                               linkStyle 2 stroke:black, stroke-width:3px
@@ -101,3 +88,4 @@ mermaid("graph BT
         style SEF fill:blue
         style FAS fill:red")
         
+#### Implementing model function ####
