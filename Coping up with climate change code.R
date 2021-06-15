@@ -88,4 +88,8 @@ mermaid("graph BT
         style SEF fill:blue
         style FAS fill:red")
         
+<<<<<<< HEAD
 #### Implementing model function ####
+=======
+#### Implementing model function ####
+>>>>>>> 4bf6d39ced3949d3f0367fc1cab7f510529fcc0f
