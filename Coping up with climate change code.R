@@ -2,9 +2,9 @@
 input_estimates_1990_1999 <- data.frame(variable = c("Precipitation", "Radiation", "Wind", "Temperature", "Soil_quality",
                                                      "Pests", "Weeds", "Pathogenes", "Rice_price", "Labour_cost", "Labour_availability",
                                                      "Irrigation_cost", "Fertilizer_cost", "Pesticide_cost", "Machinery_cost", "Rice_yield", "var_CV"),
-                                        lower = c(1940.6, 44.16, 5, 22.76, 70, 10, 5, 5, 0.5, 50, 1, 40, 20, 10, 50, 2000, 50),
+                                        lower = c(1940.6, 44.16, 5, 22.76, 70, 10, 5, 5, 0.5, 50, 1, 40, 20, 10, 50, 2000, 10),
                                         median = NA,
-                                        upper = c(2972.2, 95.66, 30, 30.73, 90, 20, 10, 15, 0.7, 70, 5, 50, 30, 20, 90, 4000, 50),
+                                        upper = c(2972.2, 95.66, 30, 30.73, 90, 20, 10, 15, 0.7, 70, 5, 50, 30, 20, 90, 4000, 10),
                                         distribution = c("posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm",
                                                          "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", 
                                                          "const"),
@@ -22,13 +22,26 @@ input_estimates_1990_1999
 ####  Model function ####
 library(decisionSupport)
 rice_function <- function(){
+  # adding variation in time series.
+  Rice_yield1      <- vv(var_mean = Rice_yield,      var_CV = var_CV, n = 1)
+  Rice_price1      <- vv(var_mean = Rice_price,      var_CV = var_CV, n = 1)
+  Wind1            <- vv(var_mean = Wind,            var_CV = var_CV, n = 1)
+  Pests1           <- vv(var_mean = Pests,           var_CV = var_CV, n = 1)
+  Weeds1           <- vv(var_mean = Weeds,           var_CV = var_CV, n = 1)
+  Pathogenes1      <- vv(var_mean = Pathogenes,      var_CV = var_CV, n = 1)
+  Labour_cost1     <- vv(var_mean = Labour_cost,     var_CV = var_CV, n = 1)
+  Irrigation_cost1 <- vv(var_mean = Irrigation_cost, var_CV = var_CV, n = 1)
+  Fertilizer_cost1 <- vv(var_mean = Fertilizer_cost, var_CV = var_CV, n = 1)
+  Pesticide_cost1  <- vv(var_mean = Pesticide_cost,  var_CV = var_CV, n = 1)
+  Machinery_cost1  <- vv(var_mean = Machinery_cost,  var_CV = var_CV, n = 1)
+  
   # yield losses dependent on % yield loss due to wind, pests, weeds and pathogens.
-  yield_loss <- Wind + Pests + Weeds + Pathogenes
+  yield_loss <- Wind1 + Pests1 + Weeds1 + Pathogenes1
   # income dependent rice price times rice yield. Rice yield is reduced about yield loss.
-  income <- Rice_price * (Rice_yield * ((100 - yield_loss)/100))
-  # overall cost as sum of labour, irrigation, fertilizer, pesticide and machinery cost
-  overall_costs <- Labour_cost + Irrigation_cost + Fertilizer_cost + Pesticide_cost + Machinery_cost
-  # final result is income subtracted by all costs
+  income <- Rice_price1 * (Rice_yield1 * ((100 - yield_loss)/100))
+  # overall cost as sum of labour, irrigation, fertilizer, pesticide and machinery cost.
+  overall_costs <- Labour_cost1 + Irrigation_cost + Fertilizer_cost1 + Pesticide_cost1 + Machinery_cost1
+  # final result is income subtracted by all costs.
   final_result <- income - overall_costs
   
   return(list(final_result = final_result))
@@ -38,12 +51,11 @@ rice_function <- function(){
 library(decisionSupport)
 # Run the Monte Carlo simulation using the model function and data from input_estimates.
 rice_mc_simulation <- mcSimulation(estimate = as.estimate(input_estimates_1990_1999),
-                                    model_function = rice_function,
-                                    numberOfModelRuns = 1000,
-                                    functionSyntax = "plainNames")
+                                   model_function = rice_function,
+                                   numberOfModelRuns = 1000,
+                                   functionSyntax = "plainNames")
 
 rice_mc_simulation
-
 
 
 # Visualize model output as graph.  
