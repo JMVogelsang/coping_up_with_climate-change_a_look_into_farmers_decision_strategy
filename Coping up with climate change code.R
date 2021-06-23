@@ -58,19 +58,18 @@ rice_function <- function(){
   profit_no_typhoon <- ((yields * ((1 - yield_loss - Precipitation)/1)) * prices) - overall_costs
   
   
-  # calculate profit when there is a typhoon
+  # calculate profit when there is a drought
   profit_drought <- ((drought_adjusted_yield * ((1 - yield_loss - Wind)/1)) * prices) - overall_costs
-  # calculate profit when there is no typhoon
+  # calculate profit when there is no drought
   profit_no_drought <- ((yields * ((1 - yield_loss - Wind)/1)) * prices) - overall_costs
   
   
-  # use 'discount' to calculate net present value 
-  # 'discount_rate' is expressed in percent
+  # Calculate net present value (NPV) and discount for typhoon/ drought
   # typhoon
-  NPV_typhoon <- discount(profit_typhoon, discount_rate = 55, calculate_NPV = TRUE)
+  NPV_typhoon <- discount(profit_typhoon, discount_rate = 65, calculate_NPV = TRUE)
   NPV_no_typhoon <- discount(profit_no_typhoon, discount_rate = 5, calculate_NPV = TRUE)
   # drought
-  NPV_drought <- discount(profit_drought, discount_rate = 45, calculate_NPV = TRUE)
+  NPV_drought <- discount(profit_drought, discount_rate = 35, calculate_NPV = TRUE)
   NPV_no_drought <- discount(profit_no_drought, discount_rate = 5, calculate_NPV = TRUE)
   
   # calculate the overall NPV of the decision
@@ -106,23 +105,26 @@ plot_distributions(mcSimulation_object = rice_mc_simulation,
                    vars = "NPV_typhoon",
                    method = "boxplot_density",
                    old_names = "NPV_typhoon",
-                   new_names = "Outcome distribution for profits in $/ha in potential decade.")
+                   new_names = "Outcome distribution for profits in $/ha in potential decade for scenario with Typhoon.")
 
 # graphic output without typhoon
 plot_distributions(mcSimulation_object = rice_mc_simulation,
                    vars = "NPV_no_typhoon",
                    method = "boxplot_density",
                    old_names = "NPV_no_typhoon",
-                   new_names = "Outcome distribution for profits in $/ha in potential decade.")
+                   new_names = "Outcome distribution for profits in $/ha in potential decade for sceanrio without Typhoon.")
 
 # graphic output with and without typhoon - smooth
 plot_distributions(mcSimulation_object = rice_mc_simulation, 
                    vars = c("NPV_typhoon", "NPV_no_typhoon"),
                    method = 'smooth_simple_overlay', 
-                   base_size = 10)
+                   base_size = 10,
+                   x_axis_name = "Outcome distribution for profits in $/ha in potential decade for Typhoon/ No Typhoon scenario.")
 
 # graphic output with and without typhoon - histo
 plot_distributions(mcSimulation_object = rice_mc_simulation, 
                    vars = c("NPV_drought", "NPV_no_drought"),
                    method = 'smooth_simple_overlay', 
-                   base_size = 10)
+                   base_size = 10,
+                   x_axis_name = "Outcome distribution for profits in $/ha in potential decade for drought/ no drought scenario.")
+
