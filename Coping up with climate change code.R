@@ -3,9 +3,9 @@ input_estimates_random_decade <- data.frame(variable = c("Precipitation", "Wind"
                                                          "Pests", "Weeds", "Pathogenes", "Rice_price", "Labour_cost",
                                                          "Irrigation_cost", "Fertilizer_cost", "Pesticide_cost", "Machinery_cost", 
                                                          "Rice_yield_attained", "Rice_yield_potential", "var_CV"),
-                                            lower = c(0.05, 0.05, 0.05, 0.05, 0.1, 0.05, 0.05, 0.6, 50, 30, 20, 10, 40, 2000, 4000, 10),
+                                            lower = c(0.05, 0.05, 0.05, 0.05, 0.1, 0.05, 0.05, 0.6, 50, 30, 20, 10, 40, 2000, 4000, 25),
                                             median = NA,
-                                            upper = c(0.5, 0.5, 0.2, 0.15, 0.2, 0.1, 0.15, 0.8, 70, 40, 30, 20, 80, 4000, 8000, 10),
+                                            upper = c(0.55, 0.75, 0.2, 0.15, 0.2, 0.1, 0.15, 0.8, 70, 40, 30, 20, 80, 4000, 8000, 25),
                                             distribution = c("posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm",
                                                              "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "posnorm", "const"),
                                             label = c("% yield loss", "% yield loss", "% yield loss", "% yield loss", "% yield loss", "% yield loss", 
@@ -38,12 +38,16 @@ rice_function <- function(){
   typhoon_adjusted_yield <- chance_event(chance = Wind, 
                                          value_if = 0,
                                          value_if_not = Rice_yield_potential,
-                                         n = 10)
+                                         n = 10,
+                                         CV_if = 50,
+                                         CV_if_not = 5)
   # assuming that drought event would destroy rice harvest
   drought_adjusted_yield <- chance_event(chance = Precipitation,
                                          value_if = 0,
                                          value_if_not = Rice_yield_potential,
-                                         n =10)
+                                         n =10,
+                                         CV_if = 50,
+                                         CV_if_not = 5)
   
   
   # yield losses dependent on % yield loss due to temperature risk, soil quality, pests, weeds and pathogens.
@@ -66,19 +70,19 @@ rice_function <- function(){
   
   # Calculate net present value (NPV) and discount for typhoon/ drought
   # typhoon
-  NPV_typhoon <- discount(profit_typhoon, discount_rate = 65, calculate_NPV = TRUE)
+  NPV_typhoon <- discount(profit_typhoon, discount_rate = 25, calculate_NPV = TRUE)
   NPV_no_typhoon <- discount(profit_no_typhoon, discount_rate = 5, calculate_NPV = TRUE)
   # drought
-  NPV_drought <- discount(profit_drought, discount_rate = 35, calculate_NPV = TRUE)
+  NPV_drought <- discount(profit_drought, discount_rate = 25, calculate_NPV = TRUE)
   NPV_no_drought <- discount(profit_no_drought, discount_rate = 5, calculate_NPV = TRUE)
   
   # calculate the overall NPV of the decision
   NPV_decision <- NPV_no_typhoon + NPV_no_drought - NPV_typhoon - NPV_drought
   
-  return(list(NPV_typhoon =  NPV_typhoon,
-              NPV_no_typhoon =  NPV_no_typhoon,
-              NPV_drought = NPV_drought,
-              NPV_no_drought = NPV_no_drought,
+  return(list(NPV_typhoon_drought =  NPV_typhoon + NPV_drought,
+              NPV_no_typhoon_no_drought =  NPV_no_typhoon + NPV_no_drought,
+              NPV_no_typhoon_drought = NPV_drought + NPV_typhoon,
+              NPV_typhoon_no_drought = NPV_no_drought + NPV_typhoon,
               NPV_decision = NPV_decision))
 }
 
@@ -95,9 +99,10 @@ rice_mc_simulation
 ##### Visualize model output graphically ####
 # graphic output with typhoon/ no typhoon and drought/ no drought
 plot_distributions(mcSimulation_object = rice_mc_simulation, 
-                   vars = c("NPV_typhoon", "NPV_no_typhoon", "NPV_drought", "NPV_no_drought"),
+                   vars = c("NPV_typhoon_drought", "NPV_no_typhoon_no_drought", 
+                            "NPV_no_typhoon_drought", "NPV_typhoon_no_drought"),
                    method = 'smooth_simple_overlay', 
-                   base_size = 10,
+                   base_size = 12,
                    x_axis_name = "Financial outcome in $ per ha")
 
 # graphic output with typhoon
