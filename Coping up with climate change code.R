@@ -132,4 +132,3 @@ plot_distributions(mcSimulation_object = rice_mc_simulation,
                    method = 'smooth_simple_overlay', 
                    base_size = 10,
                    x_axis_name = "Outcome distribution for profits in $/ha in potential decade for drought/ no drought scenario.")
-
