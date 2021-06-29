@@ -1,0 +1,342 @@
+#### Preparation and defined values####
+install.packages(decisionSupport)
+library(decisionSupport)
+
+# n is defined as 10 for all calculations since there are 10 years per decade. 
+n = 10
+# A is replacing posnorm distributions
+A = "posnorm"
+# B is replacing % yield loss
+B = "% yield loss"
+# C is replacing USD/ha
+C = "USD/ha"
+
+#### Input table for values in three time periods/decades ####
+# Input table for decades: 2000-2009, 2010-2019, 2020-2029.
+input_estimates_random_decades <- data.frame(variable = c("Drought_loss1", "Typhoon_loss1", "Flood_loss1", "Soil_quality_loss1",
+                                                          "Pests_loss1", "Weeds_loss1", "Pathogenes_loss1", "Rice_price1", "Labour_cost1",
+                                                          "Irrigation_cost1", "Fertilizer_cost1", "Pesticide_cost1", "Machinery_cost1", 
+                                                          "Rice_yield_attained1", "Rice_yield_potential1", "var_CV1",
+                                                          "drought_risk1", "typhoon_risk1", "flood_risk1",
+                                                          
+                                                          "Drought_loss2", "Typhoon_loss2", "Flood_loss2", "Soil_quality_loss2",
+                                                          "Pests_loss2", "Weeds_loss2", "Pathogenes_loss2", "Rice_price2", "Labour_cost2",
+                                                          "Irrigation_cost2", "Fertilizer_cost2", "Pesticide_cost2", "Machinery_cost2", 
+                                                          "Rice_yield_attained2", "Rice_yield_potential2", "var_CV2",
+                                                          "drought_risk2", "typhoon_risk2", "flood_risk2",
+                                                          
+                                                          "Drought_loss3", "Typhoon_loss3", "Flood_loss3", "Soil_quality_loss3",
+                                                          "Pests_loss3", "Weeds_loss3", "Pathogenes_loss3", "Rice_price3", "Labour_cost3",
+                                                          "Irrigation_cost3", "Fertilizer_cost3", "Pesticide_cost3", "Machinery_cost3", 
+                                                          "Rice_yield_attained3", "Rice_yield_potential3", "var_CV3",
+                                                          "drought_risk3", "typhoon_risk3", "flood_risk3"),
+                                             
+                                             lower = c(0.05, 0.05, 0.01, 0.05, 0.25, 0.01, 0.02, 0.20, 88.340, 5.940, 47.020, 19.12, 19.44, 2580,   8000, 20, 0.05, 0.10, 0.05,
+                                                       
+                                                       0.07, 0.06, 0.01, 0.07, 0.25, 0.01, 0.05, 0.30, 144.50, 10.84, 93.520, 21.18, 32.50, 3420,   9000, 20, 0.01, 0.15, 0.10,
+                                                       
+                                                       0.08, 0.15, 0.01, 0.09, 0.30, 0.05, 0.05, 0.24, 175.00, 14.09, 98.200, 22.24, 26.00, 6000,  16000, 25, 0.15, 0.20, 0.15),
+                                             median = NA,
+                                             upper = c(0.20, 0.08, 0.05, 0.10, 0.50, 0.06, 0.08, 0.36, 124.30, 11.00, 157.56, 26.52, 44.44, 12300, 14000, 25, 0.10, 0.15, 0.10,
+                                                       
+                                                       0.35, 0.10, 0.05, 0.12, 0.60, 0.07, 0.10, 0.46, 204.94, 17.38, 134.30, 25.14, 42.88, 15900, 18000, 30, 0.15, 0.20, 0.15,
+                                                       
+                                                       0.40, 0.20, 0.05, 0.14, 1.00, 0.15, 0.15, 0.36, 246.00, 22.59, 141.01, 26.40, 34.30, 16000, 22000, 30, 0.20, 0.25, 0.20),
+                                             
+                                             distribution = c(A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+                                                              
+                                                              A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+                                                              
+                                                              A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A),
+                                             
+                                             label = c(B, B, B, B, B, B, B, "USD/kg", C, C, C, C, C, "kg/ha", "kg/ha",
+                                                       "Coefficient of variation", "% likelyhood drought", "% likelyhood typhoon", "% likelyhood flood",
+                                                       
+                                                       B, B, B, B, B, B, B, "USD/kg", C, C, C, C, C, "kg/ha", "kg/ha",
+                                                       "Coefficient of variation",  "% likelyhood drought", "% likelyhood typhoon", "% likelyhood flood",
+                                                       
+                                                       B, B, B, B, B, B, B, "USD/kg", C, C, C, C, C, "kg/ha", "kg/ha",
+                                                       "Coefficient of variation",  "% likelyhood drought", "% likelyhood typhoon", "% likelyhood flood"),
+                                             
+                                             Description = c("Yield loss due to too little rain (drought)", 
+                                                             "Yield loss due to heavy wind events (Typhoon)", 
+                                                             "Yield loss due to too mach rain (flood)", 
+                                                             "Yield loss due to variation in soil quality", "Yield loss due to pest infestation",
+                                                             "Yield loss due to weed infestation", "Yield los due to pathogene infestation", 
+                                                             "Rice market price", "Labour market cost", "Price of irrigation",
+                                                             "Price of fertilizer", "Price of pesticide", "Price of machinery", "Rice yield attained",
+                                                             "Rice yield potential", "Coefficient of variation (measure of relative variability)",
+                                                             "% chance of annual drought occurance", "% chance of annual typhoon occurance", "% chance of annual flood occurance",
+                                                             
+                                                             "Yield loss due to too little rain (drought)", 
+                                                             "Yield loss due to heavy wind events (Typhoon)", 
+                                                             "Yield loss due to too mach rain (flood)", 
+                                                             "Yield loss due to variation in soil quality", "Yield loss due to pest infestation",
+                                                             "Yield loss due to weed infestation", "Yield los due to pathogene infestation", 
+                                                             "Rice market price", "Labour market cost", "Price of irrigation",
+                                                             "Price of fertilizer", "Price of pesticide", "Price of machinery", "Rice yield attained",
+                                                             "Rice yield potential", "Coefficient of variation (measure of relative variability)",
+                                                             "% chance of annual drought occurance", "% chance of annual typhoon occurance", "% chance of annual flood occurance",
+                                                             
+                                                             "Yield loss due to too little rain (drought)", 
+                                                             "Yield loss due to heavy wind events (Typhoon)", 
+                                                             "Yield loss due to too mach rain (flood)", 
+                                                             "Yield loss due to variation in soil quality", "Yield loss due to pest infestation",
+                                                             "Yield loss due to weed infestation", "Yield los due to pathogene infestation", 
+                                                             "Rice market price", "Labour market cost", "Price of irrigation",
+                                                             "Price of fertilizer", "Price of pesticide", "Price of machinery", "Rice yield attained",
+                                                             "Rice yield potential", "Coefficient of variation (measure of relative variability)",
+                                                             "% chance of annual drought occurance", "% chance of annual typhoon occurance", "% chance of annual flood occurance"))
+input_estimates_random_decades
+
+
+####  Model function ####
+# model function for the 3 decades.
+rice_function <- function(){
+  
+  # adding variation in time series to variable rice yield and rice price in each of the 3 decades, because prices and yield fluctuate.
+  # var_cV is the coefficinet of variation (%) and I assumed more variation in the future, therefore the coefficinet rises gradually. 
+  yields1 <- vv(var_mean = Rice_yield_potential1, 
+                var_CV = var_CV1, 
+                n)
+  prices1 <- vv(var_mean = Rice_price1, 
+                var_CV = var_CV1, 
+                n)
+  
+  yields2 <- vv(var_mean = Rice_yield_potential2, 
+                var_CV = var_CV2, 
+                n)
+  prices2 <- vv(var_mean = Rice_price2, 
+                var_CV = var_CV2, 
+                n)
+  
+  yields3 <- vv(var_mean = Rice_yield_potential3, 
+                var_CV = var_CV3, 
+                n)
+  prices3 <- vv(var_mean = Rice_price3, 
+                var_CV = var_CV3, 
+                n)
+  
+  
+  # effect of typhoon and drought on the yield are expressed.
+  # cahnce describes the probability that the event happens (0-1).
+  # cv_if and cv_if_no are coefficinets of variation (%).
+  # cv_if = 50 means 50% variation of the value_if for the 10 generated values.
+  # value_if = 0 means that in case of the event no yield is assumed (has to be discussed).
+  typhoon_adjusted_yield1 <- chance_event(chance = typhoon_risk1, 
+                                          value_if = 1 - Typhoon_loss1,
+                                          value_if_not = Rice_yield_potential1,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  drought_adjusted_yield1 <- chance_event(chance = drought_risk1,
+                                          value_if = 1 - Drought_loss1,
+                                          value_if_not = Rice_yield_potential1,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  flood_adjusted_yield1 <- chance_event(chance = flood_risk1,
+                                        value_if = 1 - Flood_loss1,
+                                        value_if_not = Rice_yield_potential1,
+                                        n,
+                                        CV_if = 50,
+                                        CV_if_not = 5)
+  
+  typhoon_adjusted_yield2 <- chance_event(chance = typhoon_risk2, 
+                                          value_if = 1 - Typhoon_loss2,
+                                          value_if_not = Rice_yield_potential2,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  drought_adjusted_yield2 <- chance_event(chance = drought_risk2,
+                                          value_if = 1 - Drought_loss2,
+                                          value_if_not = Rice_yield_potential2,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  flood_adjusted_yield2 <- chance_event(chance = flood_risk2,
+                                        value_if = 1 - Flood_loss2,
+                                        value_if_not = Rice_yield_potential2,
+                                        n,
+                                        CV_if = 50,
+                                        CV_if_not = 5)
+  
+  typhoon_adjusted_yield3 <- chance_event(chance = typhoon_risk3, 
+                                          value_if = 1 - Typhoon_loss3,
+                                          value_if_not = Rice_yield_potential3,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  drought_adjusted_yield3 <- chance_event(chance = drought_risk3,
+                                          value_if = 1 - Drought_loss3,
+                                          value_if_not = Rice_yield_potential3,
+                                          n,
+                                          CV_if = 50,
+                                          CV_if_not = 5)
+  flood_adjusted_yield3 <- chance_event(chance = flood_risk3,
+                                        value_if = 1 - Flood_loss3,
+                                        value_if_not = Rice_yield_potential1,
+                                        n,
+                                        CV_if = 50,
+                                        CV_if_not = 5)
+  
+  
+  # yield losses dependent on % yield loss due to soil quality, pests, weeds and pathogens.
+  # overall cost as sum of labor, irrigation, fertilizer, pesticide and machinery cost.
+  yield_loss1 <- Soil_quality_loss1 + Pests_loss1 + Weeds_loss1 + Pathogenes_loss1
+  overall_costs1 <- Labour_cost1 + Irrigation_cost1 + Fertilizer_cost1 + Pesticide_cost1 + Machinery_cost1
+  
+  yield_loss2 <- Soil_quality_loss2 + Pests_loss2 + Weeds_loss2 + Pathogenes_loss2
+  overall_costs2 <- Labour_cost2 + Irrigation_cost2 + Fertilizer_cost2 + Pesticide_cost2 + Machinery_cost2
+  
+  yield_loss3 <- Soil_quality_loss3 + Pests_loss3 + Weeds_loss3 + Pathogenes_loss3
+  overall_costs3 <- Labour_cost3 + Irrigation_cost3 + Fertilizer_cost3 + Pesticide_cost3 + Machinery_cost3
+  
+  
+  # calculates profit when there is a typhoon and when there is no typhoon.
+  # Losses due to drought or flood are listed separately from other yield loss factors because they are involved in separate risk calculation.
+  profit_typhoon1 <- ((typhoon_adjusted_yield1 * ((1 - yield_loss1 - Drought_loss1 - Flood_loss1)/1)) * prices1) - overall_costs1
+  profit_no_typhoon1 <- ((yields1 * ((1 - yield_loss1 - Drought_loss1 - Flood_loss1)/1)) * prices1) - overall_costs1
+  
+  profit_typhoon2 <- ((typhoon_adjusted_yield2 * ((1 - yield_loss2 - Drought_loss2 - Flood_loss2)/1)) * prices2) - overall_costs2
+  profit_no_typhoon2 <- ((yields2 * ((1 - yield_loss2 - Drought_loss2 - Flood_loss2)/1)) * prices2) - overall_costs2
+  
+  profit_typhoon3 <- ((typhoon_adjusted_yield3 * ((1 - yield_loss3 - Drought_loss3 - Flood_loss3)/1)) * prices3) - overall_costs3
+  profit_no_typhoon3 <- ((yields3 * ((1 - yield_loss3 - Drought_loss3 - Flood_loss3)/1)) * prices3) - overall_costs3
+  
+  
+  # calculates profit when there is a drought and when there is no drought.
+  # Losses due to typhoon or flood are listed separately from other yield loss factors because they are involved in separate risk calculation.
+  profit_drought1 <- ((drought_adjusted_yield1 * ((1 - yield_loss1 - Typhoon_loss1 - Flood_loss1)/1)) * prices1) - overall_costs1
+  profit_no_drought1 <- ((yields1 * ((1 - yield_loss1 - Typhoon_loss1 - Flood_loss1)/1)) * prices1) - overall_costs1
+  
+  profit_drought2 <- ((drought_adjusted_yield2 * ((1 - yield_loss2 - Typhoon_loss2 - Flood_loss2)/1)) * prices2) - overall_costs2
+  profit_no_drought2 <- ((yields2 * ((1 - yield_loss2 - Typhoon_loss2 - Flood_loss2)/1)) * prices2) - overall_costs2
+  
+  profit_drought3 <- ((drought_adjusted_yield3 * ((1 - yield_loss3 - Typhoon_loss3 - Flood_loss3)/1)) * prices3) - overall_costs3
+  profit_no_drought3 <- ((yields3 * ((1 - yield_loss3 - Typhoon_loss3 - Flood_loss3)/1)) * prices3) - overall_costs3
+  
+  
+  # calculates profit when there is a flood and when there is no flood.
+  # Losses due to typhoon or drought are listed separately from other yield loss factors because they are involved in separate risk calculation.
+  profit_flood1 <- ((flood_adjusted_yield1 * ((1 - yield_loss1 - Typhoon_loss1 - Drought_loss1)/1)) * prices1) - overall_costs1
+  profit_no_flood1 <- ((yields1 * ((1 - yield_loss1 - Typhoon_loss1 - Drought_loss1)/1)) * prices1) - overall_costs1
+  
+  profit_flood2 <- ((flood_adjusted_yield2 * ((1 - yield_loss2 - Typhoon_loss2 - Drought_loss2)/1)) * prices2) - overall_costs2
+  profit_no_flood2 <- ((yields2 * ((1 - yield_loss2 - Typhoon_loss2 - Drought_loss2)/1)) * prices2) - overall_costs2
+  
+  profit_flood3 <- ((flood_adjusted_yield3 * ((1 - yield_loss3 - Typhoon_loss3 - Drought_loss3)/1)) * prices3) - overall_costs3
+  profit_no_flood3 <- ((yields3 * ((1 - yield_loss3 - Typhoon_loss3 - Drought_loss3)/1)) * prices3) - overall_costs3
+  
+  
+  # Calculate net present value (NPV) and discount for typhoon/ drought.
+  # discount rate is assumed to increase by time.
+  NPV_typhoon1 <- discount(profit_typhoon1, discount_rate = 25, calculate_NPV = TRUE)
+  NPV_no_typhoon1 <- discount(profit_no_typhoon1, discount_rate = 5, calculate_NPV = TRUE)
+  NPV_drought1 <- discount(profit_drought1, discount_rate = 25, calculate_NPV = TRUE)
+  NPV_no_drought1 <- discount(profit_no_drought1, discount_rate = 5, calculate_NPV = TRUE)
+  NPV_flood1 <- discount(profit_flood1, discount_rate = 25, calculate_NPV = TRUE)
+  NPV_no_flood1 <- discount(profit_no_flood1, discount_rate = 5, calculate_NPV = TRUE)
+  
+  NPV_typhoon2 <- discount(profit_typhoon2, discount_rate = 30, calculate_NPV = TRUE)
+  NPV_no_typhoon2 <- discount(profit_no_typhoon2, discount_rate = 10, calculate_NPV = TRUE)
+  NPV_drought2 <- discount(profit_drought2, discount_rate = 30, calculate_NPV = TRUE)
+  NPV_no_drought2 <- discount(profit_no_drought2, discount_rate = 10, calculate_NPV = TRUE)
+  NPV_flood2 <- discount(profit_flood2, discount_rate = 30, calculate_NPV = TRUE)
+  NPV_no_flood2 <- discount(profit_no_flood2, discount_rate = 10, calculate_NPV = TRUE)
+  
+  NPV_typhoon3 <- discount(profit_typhoon3, discount_rate = 35, calculate_NPV = TRUE)
+  NPV_no_typhoon3 <- discount(profit_no_typhoon3, discount_rate = 15, calculate_NPV = TRUE)
+  NPV_drought3 <- discount(profit_drought3, discount_rate = 35, calculate_NPV = TRUE)
+  NPV_no_drought3 <- discount(profit_no_drought3, discount_rate = 15, calculate_NPV = TRUE)
+  NPV_flood3 <- discount(profit_flood3, discount_rate = 35, calculate_NPV = TRUE)
+  NPV_no_flood3 <- discount(profit_no_flood3, discount_rate = 15, calculate_NPV = TRUE)
+  
+  
+  # calculate the overall NPV a farmer can expect from his rice plantation in the three investigated decades.
+  NPV_decade_1 <- (NPV_no_typhoon1 + NPV_no_drought1 + NPV_no_flood1 + NPV_typhoon1 + NPV_drought1 + NPV_flood1) / 6
+  NPV_decade_2 <- (NPV_no_typhoon2 + NPV_no_drought2 + NPV_no_flood2 + NPV_typhoon2 + NPV_drought2 + NPV_flood2) / 6
+  NPV_decade_3 <- (NPV_no_typhoon3 + NPV_no_drought3 + NPV_no_flood3 + NPV_typhoon3 + NPV_drought3 + NPV_flood3) / 6
+  
+  return(list(NPV_decade_1 = NPV_decade_1,
+              NPV_decade_2 = NPV_decade_2,
+              NPV_decade_3 = NPV_decade_3,
+              NPV_typhoon1 = NPV_typhoon1,
+              NPV_typhoon2 = NPV_typhoon2,
+              NPV_typhoon3 = NPV_typhoon3,
+              NPV_no_typhoon1 = NPV_no_typhoon1,
+              NPV_no_typhoon2 = NPV_no_typhoon2,
+              NPV_no_typhoon3 = NPV_no_typhoon3,
+              NPV_drought1 = NPV_drought1,
+              NPV_drought2 = NPV_drought2,
+              NPV_drought3 = NPV_drought3,
+              NPV_no_drought1 = NPV_no_drought1,
+              NPV_no_drought2 = NPV_no_drought2,
+              NPV_no_drought3 = NPV_no_drought3,
+              NPV_flood1 = NPV_flood1,
+              NPV_flood2 = NPV_flood2,
+              NPV_flood3 = NPV_flood3,
+              NPV_no_flood1 = NPV_no_flood1,
+              NPV_no_flood2 = NPV_no_flood2,
+              NPV_no_flood3 = NPV_no_flood3))
+}
+#### Monte Carlo Simulation ####
+# Run the Monte Carlo simulation using the model function and data from input_estimates for 3 decades.
+rice_mc_simulation <- mcSimulation(estimate = as.estimate(input_estimates_random_decades),
+                                   model_function = rice_function,
+                                   numberOfModelRuns = 10000,
+                                   functionSyntax = "plainNames")
+
+rice_mc_simulation
+
+
+##### Visualize model output graphically ####
+# graphic output of the NPV of the three observed decades.
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_decade_1", "NPV_decade_2", "NPV_decade_3"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_typhoon1", "NPV_typhoon2", "NPV_typhoon3"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_no_typhoon1", "NPV_no_typhoon2", "NPV_no_typhoon3"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_no_typhoon1", "NPV_no_drought1", "NPV_no_flood1"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_typhoon1", "NPV_drought1", "NPV_flood1"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_typhoon3", "NPV_drought3", "NPV_flood3"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
+
+plot_distributions(mcSimulation_object = rice_mc_simulation, 
+                   vars = c("NPV_typhoon3", "NPV_drought3", "NPV_flood3", "NPV_typhoon1", "NPV_drought1", "NPV_flood1"),
+                   method = 'smooth_simple_overlay', 
+                   base_size = 12,
+                   colors = c("tomato4", "navy", "limegreen", "tomato4", "navy", "limegreen"),
+                   x_axis_name = "Financial outcome in $ per ha")
