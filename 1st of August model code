@@ -36,7 +36,7 @@ input_estimates <- data.frame(variable = c("drought_loss", "typhoon_loss", "floo
                                             distribution = c(E, E, E, E,  E, E, E, A,  A, A, A, A,  A, A, A, E,  E, E, A, E,  E, A, A, A, A),
                                             
                                             label = c(B, B, B, B, B, B, B, "USD/kg", C, C, C, C, C, "kg/ha", "Coefficient of variation", 
-                                                      "% likelyhood drought", "% likelyhood typhoon", "% likelyhood flood", C, B, B, D, D, "$/season", "$/season"),
+                                                      "% likelihood drought", "% likelihood typhoon", "% likelihood flood", C, B, B, D, D, "$/season", "$/season"),
                                             
                                             Description = c("Yield loss due to too little rain (drought)", 
                                                             "Yield loss due to heavy wind events (Typhoon)", 
